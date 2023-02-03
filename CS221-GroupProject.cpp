@@ -2,14 +2,13 @@
 
 #include <iostream>
 #include <string>
+#include <cstdlib>
 
 using namespace std;
 
 // Definitions
 
 int NoP = 0; // Number of Patients
-
-int const SIZE = 5;
 
 struct Name {
 	string first; // First name
@@ -33,15 +32,15 @@ struct Patient {
 	Person patient;
 	string medicine;
 	double dose;
-} records[SIZE];
+};
 
 // Function Prototypes
 
-void menu(string);
+void menu(Patient [], string);
 
-void garbagerecords();
+void garbagerecords(Patient [], int const);
 
-void view(int, int);
+void view(Patient [], int, int);
 
 int maxCharacters (string, int);
 
@@ -49,15 +48,42 @@ string underscores (int);
 
 string fillSpaces (string, int);
 
+void printColumns (int [], string, string, string, string, string, string, string, string, string);
+
+void clear();
+
+void title(string);
+
 int main () {
-	garbagerecords();
 	
-	menu("Welcome to the Hospital System.");
+	title("Hospital System - New File");
+	
+	int *input = new int; // temporary variable to store input from user
+	
+	cout << "Maximum amount of records allowed: ";
+	cin >> *input; // store input in the temporary variable
+	
+	int const SIZE = *input; // create constant integer for the array size
+	
+	delete input; // delete the temporary variable from memory
+	
+	Patient records[SIZE]; // create a struct array
+	
+	garbagerecords(records, SIZE); // fill the struct array
+	
+	clear();
+	
+	title("Hospital System - " + to_string(NoP) + " Records");
+	
+	menu(records, "Welcome to the Hospital System.\n"); // start the program
 	
 	return 0;
 }
 
-void view(int first, int last) {
+void view(Patient records[], int first, int last) {
+	
+	clear();
+	int columns[] = {1, 3, 2, 7, 6, 5, 4}; 
 	
 	// Sets default character count in each column to the column's title length
 	int maxID = 2, maxName = 10, maxLastName = 9, maxGender = 6, maxDoB = 9, maxMedicine = 8, maxDose = 4;
@@ -74,15 +100,21 @@ void view(int first, int last) {
 	}
 	
 	// Prints the top border line, with the total width adjusting for the largest character count in each row
-	cout << " _" << underscores(maxID) << "__" << underscores(maxName) << "__" << underscores(maxLastName) << "__" << underscores(maxGender) << "__" << underscores(maxDoB) << "__" << underscores(maxMedicine) << "__" << underscores(maxDose) << "\n";
+	cout << " " << underscores(20 + maxID + maxName + maxLastName + maxGender + maxDoB + maxMedicine + maxDose) << "\n";
 	
 	// Prints the title for every column, and adds spaces if the data is too small, then adds the separator "|" character
-	cout << "| " << fillSpaces("", maxID) << "| " << fillSpaces("", maxName) << "| " << fillSpaces("", maxLastName) << "| " << fillSpaces("", maxGender) << "| " << fillSpaces("", maxDoB) << "| " << fillSpaces("", maxMedicine) << "| " << fillSpaces("", maxDose) <<"|\n";
-	cout << "| " << fillSpaces("ID", maxID) << "| " << fillSpaces("First Name", maxName) << "| " << fillSpaces("Last Name", maxLastName) << "| " << fillSpaces("Gender", maxGender) << "| " << fillSpaces("Birthdate", maxDoB) << "| " << fillSpaces("Medicine", maxMedicine) << "| " << fillSpaces("Dose", maxDose) <<"|\n";
+	printColumns(columns, "| ", fillSpaces("", maxID), fillSpaces("", maxName), fillSpaces("", maxLastName), fillSpaces("", maxGender),
+				fillSpaces("", maxDoB), fillSpaces("", maxMedicine), fillSpaces("", maxDose), "|\n");
+		
+	printColumns(columns, "| ", fillSpaces("ID", maxID), fillSpaces("First Name", maxName), fillSpaces("Last Name", maxLastName),
+				fillSpaces("Gender", maxGender), fillSpaces("Birthdate", maxDoB), fillSpaces("Medicine", maxMedicine), fillSpaces("Dose", maxDose), "|\n");
 	
+	printColumns(columns, "|_", underscores(maxID + 1), underscores(maxName + 1), underscores(maxLastName + 1), underscores(maxGender + 1),
+					underscores(maxDoB + 1), underscores(maxMedicine + 1), underscores(maxDose + 1), "|\n");
+
 	// Prints the line below the column titles, with the total width adjusting for the largest character count in each row, separated by "|"
-	cout << "|_" << underscores(maxID) << "|_" << underscores(maxName) << "|_" << underscores(maxLastName) << "|_" << underscores(maxGender) << "|_" << underscores(maxDoB) << "|_" << underscores(maxMedicine) << "|_" << underscores(maxDose) << "|\n";
-	cout << "| " << fillSpaces("", maxID) << "| " << fillSpaces("", maxName) << "| " << fillSpaces("", maxLastName) << "| " << fillSpaces("", maxGender) << "| " << fillSpaces("", maxDoB) << "| " << fillSpaces("", maxMedicine) << "| " << fillSpaces("", maxDose) <<"|\n";
+	printColumns(columns, "| ", fillSpaces("", maxID), fillSpaces("", maxName), fillSpaces("", maxLastName), fillSpaces("", maxGender),
+				fillSpaces("", maxDoB), fillSpaces("", maxMedicine), fillSpaces("", maxDose), "|\n");
 	
 	// Prints every row's data on separate lines, with the total width adjusting for the largest character count in each row
 	for (int i = first; i < last; i++) {
@@ -97,50 +129,88 @@ void view(int first, int last) {
 		string dose = to_string(records[i].dose);
 		
 		// Prints the data for every column, and adds spaces if the data is too small, then adds the separator "|" character
-		cout << "| " << fillSpaces(id, maxID) << "| " << fillSpaces(firstName, maxName) << "| " << fillSpaces(lastName, maxLastName) << "| " << fillSpaces(gender, maxGender) << "| " << fillSpaces(birthdate, maxDoB) << "| " << fillSpaces(medicine, maxMedicine) << "| " << fillSpaces(dose, maxDose) <<"|\n";
+		printColumns(columns, "| ", fillSpaces(id, maxID), fillSpaces(firstName, maxName), fillSpaces(lastName, maxLastName),
+				fillSpaces(gender, maxGender), fillSpaces(birthdate, maxDoB), fillSpaces(medicine, maxMedicine), fillSpaces(dose, maxDose), "|\n");
 	}
 	
-	// Prints the bottom border line, with the total width adjusting for the largest character count in each row, separated by "|"
-	cout << "|_" << underscores(maxID) << "|_" << underscores(maxName) << "|_" << underscores(maxLastName) << "|_" << underscores(maxGender) << "|_" << underscores(maxDoB) << "|_" << underscores(maxMedicine) << "|_" << underscores(maxDose) << "|\n";
+	printColumns(columns, "|_", underscores(maxID + 1), underscores(maxName + 1), underscores(maxLastName + 1), underscores(maxGender + 1),
+					underscores(maxDoB + 1), underscores(maxMedicine + 1), underscores(maxDose + 1), "|\n");
 }
 
-void menu(string message) {
+void menu(Patient records[], string message) {
+	
 	int input = 0;
+	
 	while (true) {
-	cout << message << endl;
-	cout << "(!) Number of records: " << NoP << endl << endl;
-	cout << "Menu:" << endl;
-	cout << "1 - Add a patient\'s record" << endl;
-	cout << "2 - Delete a patient\'s record" << endl;
-	cout << "3 - Update a patient\'s record" << endl;
-	cout << "4 - Display all records" << endl;
-	cout << "5 - Sort records by scores" << endl;
-	cout << "\nPlease enter a number: ";
-	cin >> input;
-	switch (input) {
-		case 1:
+		
+		title("Hospital System - " + to_string(NoP) + " Records");
+		
+		cout << message << endl;
+		message = "Welcome to the Hospital System.\n";
+		
+		cout << "\n(!) Number of records: " << NoP << endl << endl;
+		
+		cout << "Menu:\n"
+				"1 - Add a patient\'s record\n"
+				"2 - Delete a patient\'s record\n"
+				"3 - Update a patient\'s record\n"
+				"4 - Display all records\n"
+				"5 - Sort records\n"
+				"\nPlease enter a number: ";
+		cin >> input;
+		
+		switch (input) {
 			
-			break;
-		case 2:
+			case 1:
+				
+				title("Hospital System - " + to_string(NoP) + " Records - Adding a record");
+				clear();
+				
+				break;
 			
-			break;
-		case 3:
+			case 2:
+				
+				title("Hospital System - " + to_string(NoP) + " Records - Deleting a record");
+				clear();
+				
+				break;
 			
-			break;
-		case 4:
-			view(0, NoP);
-			break;
-		case 5:
-			break;
-		default:
-			system("cls");
-			cout << "\nPlease enter a valid option." << endl;
-			break;
+			case 3:
+				
+				title("Hospital System - " + to_string(NoP) + " Records - Updating a record");
+				clear();
+				
+				break;
+			
+			case 4:
+				
+				title("Hospital System - " + to_string(NoP) + " Records - Displaying records");
+				
+				view(records, 0, NoP);				
+				system("pause"); // REMOVE
+				
+				clear();
+				
+				break;
+			
+			case 5:
+				
+				title("Hospital System - " + to_string(NoP) + " Records - Sorting records");
+				clear();
+				
+				break;
+			
+			default:
+				
+				clear();
+				message = "Please enter a valid option.\n";
+				
+				break;
 		}
 	}
 }
 
-void garbagerecords() {
+void garbagerecords(Patient records[], int const SIZE) {
 	for (int i = 0; i < SIZE; i++) {
 		records[i].patient.id = i+1;
 		records[i].patient.name.first = "A";
@@ -167,7 +237,7 @@ string underscores (int amount) {
 	
 	string underscores = "";
 	
-	for (int i = 0; i <= amount; i++)
+	for (int i = 1; i <= amount; i++)
 		underscores += "_";
 	
 	return underscores;
@@ -181,3 +251,57 @@ string fillSpaces (string str, int max) {
 	return str + " ";
 }
 
+void printColumns (int columns[], string start, string col1, string col2, string col3, string col4, string col5, string col6, string col7, string end) {
+	for (int i = 0; i < 7; i++) {
+			cout << start;
+			switch (columns[i]) {
+				case 1:
+					cout << col1; break;
+				case 2:
+					cout << col2; break;
+				case 3:
+					cout << col3; break;
+				case 4:
+					cout << col4; break;
+				case 5:
+					cout << col5; break;
+				case 6:
+					cout << col6; break;
+				case 7:
+					cout << col7; break;
+			}
+		}
+	cout << end;
+}
+
+// Clear the terminal (OS-specific)
+void clear() {
+	
+	// For Windows
+	#ifdef _WIN32
+		system("cls"); // Send "cls" command to the terminal
+	
+	// For everything else (assuming Unix-like)
+	#else
+		system("clear"); // Send "clear" command to the terminal
+	
+	#endif
+
+}
+
+// Change terminal title
+void title(string str) {
+	
+	// For Windows
+	#ifdef _WIN32
+		
+		string *title = new string; // Create temporary string
+		
+		*title = "title " + str; // Add title from the argument to the temporary string
+		
+		system((*title).c_str()); // Send command to the user's terminal
+		
+		delete title; // Delete the temporary string
+	
+	#endif
+}
