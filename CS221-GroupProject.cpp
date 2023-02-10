@@ -11,15 +11,22 @@ using namespace std;
 
 //// Definitions
 
+ifstream inFile;
+
 int NoP = 0; // Number of Patients
 
 int CurrentSize = 0; // Used to track the size globally
 
 bool loadFromHistory = false; // Used to skip loading files manually
 
-bool loadedFromHistory = false; // Used to show feedback after loading from history
+bool finishedLoadingFromHistory = false; // Used to show feedback after loading from history
 
 bool silentLoad = false; // Used to stop printing messages temporarily
+
+bool isExit = false;
+bool isLoadFile = false;
+bool isRecentFiles = false;
+bool isCreateFile = false;
 
 string fileName = "";
 
@@ -51,15 +58,15 @@ struct Patient {
 
 // Anas Ali Mastour AlGhamdi - 17 Functions:
 
-int numInput();
+int numberInput();
 
-int toInt(string);
+int convertToInt(string);
 
-double toDouble (string);
+double convertToDouble (string);
 
-string strInput();
+string stringInput();
 
-string strInput(string);
+string stringInput(string);
 
 void menu(Patient []);
 
@@ -85,6 +92,28 @@ void loadRecords(Patient [], int &);
 
 void deleteRecord(Patient [], int);
 
+void printWelcomeMessage();
+
+void printFilesMenu();
+
+void printLoadMenu();
+
+void filesMenuNavigation();
+
+void loadFile();
+
+bool isCompatible ();
+
+void getArrayInfoFromFile ();
+
+void setSize (int);
+
+void setNoP (int);
+
+void getFilesMenuInput();
+
+void printError(string);
+
 // Ahmad Al Ohaid:
 
 int updatePatient(Patient [], string, int, string);
@@ -107,309 +136,18 @@ void addPatient (Patient [], string, string, string, char, int, int, int, string
 
 int main () {
 	
-	ifstream inFile;
+	printWelcomeMessage();
 	
-	int *tempSize = new int;
-	int *tempNoP = new int;
-	
-	title("Hospital System");
-	
-	cout << "(?) Welcome to the Hospital System\n";
-	
-	bool *breakloop = new bool;
-	
-	*breakloop = false;
-	
-	int filemenuinput = 0;
-	
-	string recentLoadError = "";
-	
-	while(*breakloop == false) {
+	while (true) {
 		
-		if (!silentLoad) {
-			title("Hospital System");
-			
-			cout << "\nMain Menu:\n\n";
-			cout << "1 -> Load existing file\n"
-					"2 -> Recently opened files\n"
-					"3 -> Create new file\n"
-					"0 -> Exit\n";
-			
-			cout << "\nPlease enter a number: ";
-		}
-
+		if (isExit)
+			break;
 		
-		if (loadFromHistory)
-			filemenuinput = 1;
-		else if (loadedFromHistory)
-			filemenuinput = 2;
-		else
-			filemenuinput = numInput();
+		if (!silentLoad)
+			printFilesMenu();
 		
-		string *tempString = new string;
-		int *tempInt = new int;
-				
-		int *counter = new int;
-		
-		switch (filemenuinput) {
-			
-			case 0: // When user selects "Exit"
-				clear();
-				cout << "(X) Exiting...";
-				*breakloop = true;
-				break;
-			case 1: // When user selects "Load existing file"
-				
-				if (!silentLoad) {
-					clear();
-					title("Hospital System - Load File");
-				
-					cout << "(=) Loading existing file.\n";
-					cout << "\nEnter file name:\n> ";
-				}
-				
-				if (loadFromHistory == false) // if not already loading file from history
-					fileName = strInput(); // Takes input from user, stores in fileName global variable
-				
-				inFile.open(fileName); // Attempt opening the file inputted by the user
-				
-				if (loadFromHistory)
-					loadedFromHistory = true; // Return to case 2 once case 1 ends
-				
-				loadFromHistory = false; // Cancel skipping for future iterations of the loop
-				
-				
-				if (inFile.is_open()) { // if file was successfully opened
-					
-					string row = ""; // create empty string
-					int i = -1; // create counter for the order of strings in the file
-					bool isLoadable = false; // create boolean to stop loading if the file is incompatible
-					
-					while (getline(inFile, row, ',')) {
-						if (row ==  "!!!!!!!!!!!!CS-221!!!!!!!!!!!!")
-							// if first string in the file is matching
-							isLoadable = true;
-						
-						if (isLoadable == true) { // if the file is compatible
-							if (i == 1) {
-								// first string after the warning string
-								CurrentSize = toInt(row); // load SIZE from file
-								cout << "\nRecords maximum limit set";
-							}
-							if (i == 2) {
-								// second string after the warning string
-								NoP = toInt(row); // load NoP from file
-								cout << "\nLoading " << NoP << " records";
-							}
-							if (i > 1)
-								// stop after loading SIZE and NoP
-								break;
-						}
-						i++;
-					}
-					
-					if (isLoadable) { // if inputted file was confirmed to be compatible
-						
-						int const SIZE = CurrentSize;
-						
-						// create a struct array from loaded SIZE
-						Patient records[SIZE];
-						
-						// run function to load the records from the file into the struct array
-						loadRecords(records, NoP);
-						
-						clear();
-						
-						title("Hospital System - File: \"" + fileName + "\" - " + to_string(NoP) + " Records");
-						
-						menu(records); // start the program
-						
-						// after user exits the menu
-						clear();
-					
-						inFile.close(); // close the file
-						
-						recentLoadError = "";
-						
-						// print a feedback message and go back to the files menu
-						cout << "(X) Closed file.\n";
-						
-					} else { // if inputted file was incompatible
-						
-						
-						inFile.close(); // close the file
-						
-						recentLoadError = "(!) Couldn't load the file.\n"
-								" |\n"
-								" \'-> We have found the file, but we were unable to load\n"
-								"     it. The file might be incompatible or corrupted.\n";
-						
-						// print an error message and go back to the files menu
-						if (!silentLoad) {
-							clear();
-							
-							cout << "(!) Couldn't load the file.\n"
-								" |\n"
-								" \'-> We have found the file, but we were unable to load\n"
-								"     it. The file might be incompatible or corrupted.\n";
-						}
-					}
-				}
-				else { // if inputted file was not open
-					
-					inFile.close(); // close the file, just in case it was somehow open
-					
-					recentLoadError = "(!) Unable to find the file.\n"
-									  " |\n"
-									  " \'-> Possible cause is that the file does not exist,\n"
-									  "     or you have entered an incorrect file path.\n";
-					
-					// print an error message and go back to the files menu
-					if (!silentLoad) {
-						clear();
-						
-						cout << "(!) Unable to find the file.\n"
-							" |\n"
-							" \'-> Possible cause is that the file does not exist,\n"
-							"     or you have entered an incorrect file path.\n";
-					}
-				}
-				
-				break; // end of case 1 (load existing file)
-			
-			case 2:
-				clear();
-				title("Hospital System - Recent Files");
-				
-				silentLoad = false;
-				loadedFromHistory = false;
-				loadFromHistory = false;
-				fileName = "";
-				
-				inFile.open("FileHistory");
-				
-				*counter = 1;
-				
-				if (inFile.is_open()) {
-					if (recentLoadError == "")
-						cout << "(*) Showing recent files.\n";
-					else
-						cout << recentLoadError;
-					cout << "\nFiles opened recently:\n\n";
-					while (getline(inFile, *tempString)) {
-						cout << *counter << " -> " << *tempString << endl;
-						*counter += 1;
-					}
-					cout << "\n0 -> Go back to main menu\n";
-					cout << "\nWhich file do you want to open?\nEnter a number: ";
-					*tempInt = numInput();
-					
-					
-					*counter = 1;
-					
-					inFile.close();
-					inFile.open("FileHistory");
-					
-					while (getline(inFile, *tempString)) {
-							if (*counter == *tempInt)
-								fileName = *tempString;
-							*counter += 1;
-					}
-					
-					*tempInt = 0;
-					
-					if (fileName != "")
-						while (*tempInt != 1 && *tempInt != 2) {
-							clear();
-							cout << "(*) Showing recent files.\n";
-							cout << "\nDo you want to load \"" + fileName + "\"?\n";
-							cout << "\n1 - Yes\n2 - No\n\nEnter a number: ";
-							*tempInt = numInput();
-							if (*tempInt == 1)
-								break;
-							else if (*tempInt == 2)
-								fileName = "";
-						}
-					
-					clear();
-					
-					if (fileName == "")
-						cout << "(X) No file was loaded\n";
-					else {
-						loadFromHistory = true;
-						silentLoad = true;
-					}
-				} else {
-					clear();
-					cout << "(X) File history not found";
-				}
-				
-				delete tempString;
-				delete tempInt;
-				delete counter;
-				
-				inFile.close();
-				
-				recentLoadError == "";
-				
-				break;
-			case 3: // When user selects "Create new file"
-			{
-					
-				clear();
-				title("Hospital System - New File");
-				cout << "(+) Creating new file.\n";
-				
-				NoP = 0;
-				
-				cout << "\nPlease enter the array size: ";
-				
-				CurrentSize = numInput();
-				
-				if (CurrentSize > 0) {
-					Patient records[CurrentSize];
-					
-					cout << "\nPlease enter the new file name: ";
-					
-					fileName = strInput();
-					
-					if (fileName != "")
-						saveRecords(records);
-					else
-						cout << "\nInvalid file name.\n";
-				} else {
-					cout << "\nInvalid number.\n";
-				}
-				
-				break;
-			}
-			default: // When user selects anything else
-				clear();
-				cout << "(!) Invalid option.\n"
-							" |\n"
-							" \'-> Please enter a number corresponding to one of\n"
-							"     the available options, 1, or 2, or 3, or 0.\n";
-				break;
-		}
+		filesMenuNavigation();
 	}
-	
-	delete breakloop;
-	
-	
-
-	
-//	int *input = new int; // temporary variable to store input from user
-//	
-//	cout << "Maximum amount of records allowed: ";
-//	cin >> *input; // store input in the temporary variable
-//	
-//	int const SIZE = *input; // create constant integer for the array size
-//	
-//	delete input; // delete the temporary variable from memory
-	
-//	garbagerecords(records); // fill the struct array
-	
-	
 	
 	return 0;
 }
@@ -424,20 +162,20 @@ int findPatient(Patient a[], string needed_id){ // Basil Al Zahrani 2220004116
         
 		middle = (first + last) / 2;
         
-        if (toDouble(a[middle].patient.id) == toDouble(needed_id))
+        if (convertToDouble(a[middle].patient.id) == convertToDouble(needed_id))
             return middle;
         
-		else if(toDouble(a[middle].patient.id) > toDouble(needed_id))
+		else if(convertToDouble(a[middle].patient.id) > convertToDouble(needed_id))
             first = middle + 1;
         
         else 
             last = middle - 1;
     }
     
-    if (toDouble(a[first].patient.id) == toDouble(needed_id))
+    if (convertToDouble(a[first].patient.id) == convertToDouble(needed_id))
             return first;
     
-    if (toDouble(a[last].patient.id) == toDouble(needed_id))
+    if (convertToDouble(a[last].patient.id) == convertToDouble(needed_id))
             return last;
     
 	return -1;
@@ -515,19 +253,19 @@ int updatePatient(Patient a[], string id, int choice, string newData) {
 			a[index].patient.gender = newData[0];
 			break;
 		case 5:
-			a[index].patient.dob.mm = toInt(newData);
+			a[index].patient.dob.mm = convertToInt(newData);
 			break;
 		case 6:
-			a[index].patient.dob.dd = toInt(newData);
+			a[index].patient.dob.dd = convertToInt(newData);
 			break;
 		case 7:
-			a[index].patient.dob.yy = toInt(newData);
+			a[index].patient.dob.yy = convertToInt(newData);
 			break;
 		case 8:
 			a[index].medicine = newData;
 			break;
 		case 9:
-			a[index].dose = toDouble(newData);
+			a[index].dose = convertToDouble(newData);
     	default:
 	      	return -1;
 	      	break;
@@ -636,7 +374,7 @@ void menu(Patient records[]) {
 				"\n0 -> Save and return to main menu\n"
 				"\nPlease enter a number: ";
 		
-		switch (numInput()) {
+		switch (numberInput()) {
 			
 			case 0:
 				
@@ -645,7 +383,7 @@ void menu(Patient records[]) {
 				cout << "(+) Saving as a new file \n";
 				cout << "\nEnter file name:\n> ";
 			
-				fileName = strInput();
+				fileName = stringInput();
 				
 				if (saveRecords(records) != 0)
 					message = "Couldn't save file! Enter \"221\" to exit without saving.";
@@ -664,9 +402,9 @@ void menu(Patient records[]) {
 				title(fileName + " - Hospital System - Adding a record to " + to_string(NoP) + " records");
 				clear();
 				
-				addPatient(records, strInput("Enter patient ID: "), strInput("Enter patient\'s first name: "), strInput("Enter patient\'s last name"),
-						   strInput("Enter patient\'s gender: ")[0], toInt(strInput("Enter patient\'s birthdate:\nMonth: ")), toInt(strInput("Day: ")),
-						   toInt(strInput("Year: ")), strInput("Enter patient\'s medicine: "), toDouble(strInput("Enter patient\'s dose: ")));
+				addPatient(records, stringInput("Enter patient ID: "), stringInput("Enter patient\'s first name: "), stringInput("Enter patient\'s last name"),
+						   stringInput("Enter patient\'s gender: ")[0], convertToInt(stringInput("Enter patient\'s birthdate:\nMonth: ")), convertToInt(stringInput("Day: ")),
+						   convertToInt(stringInput("Year: ")), stringInput("Enter patient\'s medicine: "), convertToDouble(stringInput("Enter patient\'s dose: ")));
 				
 				break;
 			
@@ -679,7 +417,7 @@ void menu(Patient records[]) {
 				
 				cout << "\nEnter patient ID: ";
 				
-				int patientID = findPatient(records,strInput());
+				int patientID = findPatient(records,stringInput());
 				
 				if (patientID >= 0)
 					deleteRecord(records, patientID);
@@ -724,7 +462,7 @@ void menu(Patient records[]) {
 				cout << "(6) Finding patient by ID.\n";
 				
 				cout << "\nEnter patient\'s ID:\n";
-				cout << findPatient(records,strInput());
+				cout << findPatient(records,stringInput());
 				
 				break;
 			
@@ -735,10 +473,10 @@ void menu(Patient records[]) {
 				
 				cout << "Find using first name or last name?\n1 for First, 2 for Last: ";
 				
-				*choice = numInput();
+				*choice = numberInput();
 				
 				if (*choice == 1 || *choice == 2)
-					cout << findPatient(records, strInput("Enter name to find: "), *choice);
+					cout << findPatient(records, stringInput("Enter name to find: "), *choice);
 				else
 					message = "Please enter a valid number.\n";
 				
@@ -786,13 +524,13 @@ void loadRecords(Patient f[], int &NoP) {
 						f[row].patient.gender = data[0];
 						break;
 					case 5:
-						f[row].patient.dob.mm = toInt(data);
+						f[row].patient.dob.mm = convertToInt(data);
 						break;
 					case 6:
-						f[row].patient.dob.dd = toInt(data);
+						f[row].patient.dob.dd = convertToInt(data);
 						break;
 					case 7:
-						f[row].patient.dob.yy = toInt(data);
+						f[row].patient.dob.yy = convertToInt(data);
 						break;
 					case 8:
 						f[row].medicine = data;
@@ -821,8 +559,6 @@ void loadRecords(Patient f[], int &NoP) {
 int saveRecords(Patient f[]) {
 	
 	ofstream outFile;
-	
-	string data;
 	
 	int row = 0, col = -2;
 	
@@ -872,15 +608,15 @@ int saveRecords(Patient f[]) {
 }
 
 // Function that returns integer input from user
-int numInput () {
+int numberInput () {
 	
 	string input = ""; // creates empty string
 	getline(cin, input); // takes input from user, adds it to string
 	
-	return toInt(input);
+	return convertToInt(input);
 }
 
-int toInt (string input) {
+int convertToInt (string input) {
 	bool isDigit = true; // creates a boolean
 	
 	for (int i = 0; i < input.length(); i++)
@@ -912,7 +648,7 @@ int toInt (string input) {
 		return -1;
 }
 
-double toDouble (string input) {
+double convertToDouble (string input) {
 	bool isDigit = true; // creates a boolean
 	
 	for (int i = 0; i < input.length(); i++)
@@ -944,13 +680,13 @@ double toDouble (string input) {
 		return -1;
 }
 
-string strInput () {
+string stringInput () {
 	string input = "";
 	getline(cin, input);
 	return input;
 }
 
-string strInput (string message) {
+string stringInput (string message) {
 	string input = "";
 	cout << message;
 	getline(cin, input);
@@ -1019,6 +755,329 @@ void printColumns (int columns[], string start, string col1, string col2, string
 			}
 		}
 	cout << end;
+}
+
+void printWelcomeMessage () {
+	title("Hospital System");
+	
+	cout << "(?) Welcome to the Hospital System\n";
+}
+
+void printFilesMenu () {
+	title("Hospital System");
+	
+	cout << "\nMain Menu:\n\n";
+	cout << "1 -> Load existing file\n"
+			"2 -> Recently opened files\n"
+			"3 -> Create new file\n"
+			"0 -> Exit\n";
+	
+	cout << "\nPlease enter a number: ";
+}
+
+void printLoadMenu () {
+	clear();
+	title("Hospital System - Load File");
+
+	cout << "(=) Loading existing file.\n";
+	cout << "\nEnter file name:\n> ";
+}
+
+void printError (string message) {
+	if (message == "Invalid option") {
+		cout << "(!) Invalid option.\n"
+				" |\n"
+				" \'-> Please enter a number corresponding to one of\n"
+				"     the available options, 1, or 2, or 3, or 0.\n";
+	}
+	else if (message == "Unable to load") {
+		cout << "(!) Couldn't load the file.\n"
+					" |\n"
+					" \'-> We have found the file, but we were unable to load\n"
+					"     it. The file might be incompatible or corrupted.\n";
+	}
+	else if (message == "File not found") {
+		cout << "(!) Unable to find the file.\n"
+				" |\n"
+				" \'-> Possible cause is that the file does not exist,\n"
+				"     or you have entered an incorrect file path.\n";
+	}
+	
+}
+
+void getFilesMenuInput () {
+	if (loadFromHistory)
+		isLoadFile = true;
+	else if (finishedLoadingFromHistory)
+		isRecentFiles = true;
+	else {
+		int input = numberInput();
+		switch (input) {
+			case 0:
+				isExit = true;
+				break;
+			case 1:
+				isLoadFile = true;
+				break;
+			case 2:
+				isRecentFiles = true;
+				break;
+			case 3:
+				isCreateFile = true;
+				break;
+			default:
+				clear();
+				printError("Invalid option");
+		}
+	}
+}
+
+void filesMenuNavigation() {
+	
+	getFilesMenuInput();
+	
+	if (isExit) { // When user selects "Exit"
+		clear();
+		cout << "(X) Exiting...";
+	}
+	
+	else if (isLoadFile) { // When user selects "Load existing file"
+		isLoadFile = false;
+		loadFile();
+	}
+	
+	else if (isRecentFiles) {
+		isRecentFiles = false;
+		
+		clear();
+		title("Hospital System - Recent Files");
+		
+		silentLoad = false;
+		finishedLoadingFromHistory = false;
+		loadFromHistory = false;
+		fileName = "";
+		
+		inFile.open("FileHistory");
+		
+		int *counter = new int;
+		string *tempString = new string;
+		int *tempInt = new int;
+		
+		*counter = 1;
+		
+		if (inFile.is_open()) {
+			cout << "(*) Showing recent files.\n";
+			
+			cout << "\nFiles opened recently:\n\n";
+			while (getline(inFile, *tempString)) {
+				cout << *counter << " -> " << *tempString << endl;
+				*counter += 1;
+			}
+			cout << "\n0 -> Go back to main menu\n";
+			cout << "\nWhich file do you want to open?\nEnter a number: ";
+			*tempInt = numberInput();
+			
+			
+			*counter = 1;
+			
+			inFile.close();
+			inFile.open("FileHistory");
+			
+			while (getline(inFile, *tempString)) {
+					if (*counter == *tempInt)
+						fileName = *tempString;
+					*counter += 1;
+			}
+			
+			*tempInt = 0;
+			
+			if (fileName != "")
+				while (*tempInt != 1 && *tempInt != 2) {
+					clear();
+					cout << "(*) Showing recent files.\n";
+					cout << "\nDo you want to load \"" + fileName + "\"?\n";
+					cout << "\n1 - Yes\n2 - No\n\nEnter a number: ";
+					*tempInt = numberInput();
+					if (*tempInt == 1)
+						break;
+					else if (*tempInt == 2)
+						fileName = "";
+				}
+			
+			clear();
+			
+			if (fileName == "")
+				cout << "(X) No file was loaded\n";
+			else {
+				loadFromHistory = true;
+				silentLoad = true;
+			}
+		} else {
+			clear();
+			cout << "(X) File history not found";
+		}
+		
+		delete tempString;
+		delete tempInt;
+		delete counter;
+		
+		inFile.close();
+		
+		
+	}
+	
+	else if (isCreateFile) { // When user selects "Create new file"
+		isCreateFile = false;
+		
+		clear();
+		title("Hospital System - New File");
+		cout << "(+) Creating new file.\n";
+		
+		NoP = 0;
+		
+		cout << "\nPlease enter the array size: ";
+		
+		CurrentSize = numberInput();
+		
+		if (CurrentSize > 0) {
+			Patient records[CurrentSize];
+			
+			cout << "\nPlease enter the new file name: ";
+			
+			fileName = stringInput();
+			
+			if (fileName != "")
+				saveRecords(records);
+			else
+				cout << "\nInvalid file name.\n";
+		} else {
+			cout << "\nInvalid number.\n";
+		}
+		
+	}
+}
+
+void loadFile() {
+	
+	if (!silentLoad) {
+		printLoadMenu();
+	}
+	
+	if (!loadFromHistory) // if not already loading file from history
+		fileName = stringInput(); // Takes input from user, stores in fileName global variable
+	else
+		finishedLoadingFromHistory = true; // Return to case 2 once case 1 ends
+	
+	loadFromHistory = false; // Cancel skipping for future iterations of the loop
+	
+	inFile.open(fileName); // Attempt opening the file inputted by the user
+	
+	if (inFile.is_open()) { // if file was successfully opened
+		
+		inFile.close();
+		
+		if (isCompatible()) { // if inputted file was confirmed to be compatible
+			
+			getArrayInfoFromFile();
+			
+			// create a struct array from loaded size
+			Patient records[CurrentSize];
+			
+			// run function to load the records from the file into the struct array
+			loadRecords(records, NoP);
+			
+			clear();
+			
+			title("Hospital System - File: \"" + fileName + "\" - " + to_string(NoP) + " Records");
+			
+			menu(records); // start the program
+			
+			// after user exits the menu
+			clear();
+		
+			inFile.close(); // close the file
+			
+			// print a feedback message and go back to the files menu
+			cout << "(X) Closed file.\n";
+			
+		} else { // if inputted file was incompatible
+			
+			
+			inFile.close(); // close the file
+			
+			// print an error message and go back to the files menu
+			if (!silentLoad) {
+				clear();
+				
+				printError("Unable to load");
+			}
+		}
+	}
+	else { // if inputted file was not open
+		
+		inFile.close(); // close the file, just in case it was somehow open
+		
+		// print an error message and go back to the files menu
+		if (!silentLoad) {
+			clear();
+			
+			printError("File not found");
+		}
+	}
+}
+
+bool isCompatible () {
+	
+	inFile.open(fileName);
+	
+	if (inFile.is_open()) {
+		string value = "";
+		while (getline(inFile, value, ',')) {
+			if (value ==  "!!!!!!!!!!!!CS-221!!!!!!!!!!!!") {
+				// if first string in the file is matching
+				inFile.close();
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
+void getArrayInfoFromFile () {
+	
+	inFile.open(fileName);
+	
+	if (inFile.is_open()) {
+		string value = ""; // create empty string
+		int i = -1; // create counter for the order of strings in the file
+		
+		while (getline(inFile, value, ',')) {
+			
+			if (i == 1) {
+				// first string after the warning string
+				setSize (convertToInt(value)); // load SIZE from file
+				cout << "\nRecords maximum limit set";
+			}
+			if (i == 2) {
+				// second string after the warning string
+				setNoP (convertToInt(value)); // load NoP from file
+				cout << "\nLoading " << NoP << " records";
+			}
+			if (i > 1)
+				// stop after loading SIZE and NoP
+				break;
+			i++;
+		}
+	}
+}
+
+void setNoP (int value) {
+	NoP = value;
+}
+
+void setSize (int value) {
+	CurrentSize = value;
 }
 
 // Clear the terminal (OS-specific)
