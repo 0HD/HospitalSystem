@@ -128,6 +128,10 @@ int newPatient (Patient []);
 
 void updateFileHistory ();
 
+void color(bool enable);
+
+void printBox (string);
+
 // Ahmad Al Ohaid:
 
 int updatePatient(Patient [], string, int, string);
@@ -150,6 +154,8 @@ void addPatient (Patient[], Patient);
 
 int main () {
 	
+	color(true);
+	
 	printWelcomeMessage();
 	
 	while (true) {
@@ -162,6 +168,8 @@ int main () {
 		
 		filesMenuNavigation();
 	}
+	
+	color(false);
 	
 	return 0;
 }
@@ -895,27 +903,27 @@ int saveRecords(Patient f[]) {
 	
 	outFile.open(fileName);
 	
-	outFile <<  "!!!!!!!!!!!!CS-221!!!!!!!!!!!!,\n";
-	outFile <<	"!!                          !!\n";
-	outFile <<	"!!         WARNING!         !!\n";
-	outFile <<	"!!                          !!\n";
-	outFile <<	"!! This is a database file  !!\n";
-	outFile <<	"!! for the Hospital System. !!\n";
-	outFile <<	"!! You are not supposed to  !!\n";
-	outFile <<	"!! open this directly.      !!\n";
-	outFile <<	"!!                          !!\n";
-	outFile <<	"!! Please use the Hospital  !!\n";
-	outFile <<	"!! System app to read this  !!\n";
-	outFile <<	"!! database.                !!\n";
-	outFile <<	"!!                          !!\n";
-	outFile <<	"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-	outFile <<	",";
-	
-	outFile << CurrentSize << ',';
-	
-	outFile << NoP << ',';
-	
-	if (outFile.is_open())
+	if (outFile.is_open()) {
+		outFile <<  "!!!!!!!!!!!!CS-221!!!!!!!!!!!!,\n";
+		outFile <<	"!!                          !!\n";
+		outFile <<	"!!         WARNING!         !!\n";
+		outFile <<	"!!                          !!\n";
+		outFile <<	"!! This is a database file  !!\n";
+		outFile <<	"!! for the Hospital System. !!\n";
+		outFile <<	"!! You are not supposed to  !!\n";
+		outFile <<	"!! open this directly.      !!\n";
+		outFile <<	"!!                          !!\n";
+		outFile <<	"!! Please use the Hospital  !!\n";
+		outFile <<	"!! System app to read this  !!\n";
+		outFile <<	"!! database.                !!\n";
+		outFile <<	"!!                          !!\n";
+		outFile <<	"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		outFile <<	",";
+		
+		outFile << CurrentSize << ',';
+		
+		outFile << NoP << ',';
+		
 		for (int i = 0; i < NoP; i++) {
 			outFile << endl << ',';
 			outFile << f[i].patient.id << ',';
@@ -927,13 +935,14 @@ int saveRecords(Patient f[]) {
 			outFile << f[i].patient.dob.yy << ',';
 			outFile << f[i].medicine << ',';
 			outFile << f[i].dose << ',';
-		} 
-	else {
-		cout << "\nError! Couldn't save file.\n";
-		return -1;
+		}
 	}
+	else
+		return -1;
 	
 	outFile.close();
+	
+	updateFileHistory();
 	
 	return 0;
 }
@@ -943,10 +952,10 @@ void updateFileHistory () {
 	
 	fileHistory.open("FileHistory");
 	
-	string fileNames[5] = {"", "", "", "", ""};
+	string fileNames[9] = {"", "", "", "", "", "", "", "", ""};
 	
 	if (fileHistory.is_open())
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 9; i++) {
 			if (fileHistory.eof())
 				break;
 			getline(fileHistory, fileNames[i]);
@@ -961,21 +970,44 @@ void updateFileHistory () {
 	fileHistory.close();
 	
 	if (fileNames[0] != fileName) {
-		ofstream outFile("FileHistory");
-		
-		if (outFile.is_open()) {
-			for (int i = 4; i > 0; i--) {
-				fileNames[i] = fileNames[i-1];
-			}
-			outFile << fileName << endl;
-			for (int i = 1; i < 5; i++) {
-				if (fileNames[i] != "")
-					outFile << fileNames[i] << endl;
+		// Puts fileName as the first value,
+		// pushing everything below it
+		for (int i = 8; i > 0; i--) {
+			fileNames[i] = fileNames[i-1];
+		}
+		fileNames[0] = fileName;
+	}
+	
+	string newHistory[9] = {"", "", "", "", "", "", "", "", ""};
+	
+	int *counter = new int; *counter = 0;
+	int *indexcounter = new int; *indexcounter = 0;
+	
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			if (fileNames[i] != newHistory[j]) {
+				*counter += 1;
 			}
 		}
-		
-		outFile.close();
+		if (*counter == 9) {
+			newHistory[*indexcounter] = fileNames[i];
+			(*indexcounter)++;
+		}
+		*counter = 0;
 	}
+	
+	delete counter; delete indexcounter;
+	
+	ofstream outFile("FileHistory");
+	
+	if (outFile.is_open()) {
+		for (int i = 0; i < 9; i++) {
+			if (newHistory[i] != "")
+				outFile << newHistory[i] << endl;
+		}
+	}
+	
+	outFile.close();
 	
 }
 
@@ -1132,47 +1164,89 @@ void printColumns (int columns[], string start, string col1, string col2, string
 void printWelcomeMessage () {
 	title("Hospital System");
 	
-	cout << "(?) Welcome to the Hospital System\n";
+	printBox(" Welcome to the Hospital System! ");
 }
 
 void printFilesMenu () {
-	title("Hospital System");
-	
-	cout << "\nMain Menu:\n\n";
-	cout << "1 -> Load existing file\n"
-			"2 -> Recently opened files\n"
-			"3 -> Create new file\n"
-			"0 -> Exit\n";
-	
-	cout << "\nPlease enter a number: ";
+//	cout << "\nMain Menu:\n\n";
+//	cout << "1 -> Load existing file\n"
+//			"2 -> Recently opened files\n"
+//			"3 -> Create new file\n"
+//			"0 -> Exit\n";
+	cout << "  _________________________________ \n"
+			" |                                 |\n"
+			" |   [1] Recently opened records   |\n"
+			" |   [2] Open using file name      |\n"
+			" |   [3] Create new records file   |\n"
+			" |   [0] Exit the system           |\n"
+			" |_________________________________|\n"
+			"  _______________ _____ _ _  __    _\n"
+			" |                                  \n"
+			" '---> Please enter a number: ";
 }
 
 void printLoadMenu () {
 	clear();
 	title("Hospital System - Load File");
 
-	cout << "(=) Loading existing file.\n";
+	printBox("    Loading existing records     ");
 	cout << "\nEnter file name:\n> ";
 }
 
 void printError (string message) {
 	if (message == "Invalid option") {
-		cout << "(!) Invalid option.\n"
-				" |\n"
-				" \'-> Please enter a number corresponding to one of\n"
-				"     the available options.\n";
+		cout <<  "  _________________________________ \n"
+				 " |                                 |\n"
+				 " |       (!)  Invalid option       |\n"
+				 " |  _____________________________  |\n"
+				 " |                                 |\n"
+				 " |  Please enter a number from     |\n"
+				 " |  one of the available options.  |\n"
+				 " |_________________________________|\n";
 	}
 	else if (message == "Unable to load") {
-		cout << "(!) Couldn't load the file.\n"
-					" |\n"
-					" \'-> We have found the file, but we were unable to load\n"
-					"     it. The file might be incompatible or corrupted.\n";
+		cout <<  "  _________________________________ \n"
+				 " |                                 |\n"
+				 " |   (!)  Error loading the file   |\n"
+				 " |  _____________________________  |\n"
+				 " |                                 |\n"
+				 " |  This file might be corrupted,  |\n"
+				 " |  or incompatible with the       |\n"
+				 " |  hospital system.               |\n"
+				 " |_________________________________|\n";
+		
 	}
 	else if (message == "File not found") {
-		cout << "(!) Unable to find the file.\n"
-				" |\n"
-				" \'-> Possible cause is that the file does not exist,\n"
-				"     or you have entered an incorrect file path.\n";
+		cout <<  "  _________________________________ \n"
+				 " |                                 |\n"
+				 " |   (!) Unable to find the file   |\n"
+				 " |  _____________________________  |\n"
+				 " |                                 |\n"
+				 " |  Maybe the file doesn't exist,  |\n"
+				 " |  or you've entered an invalid   |\n"
+				 " |  file name.                     |\n"
+				 " |_________________________________|\n";
+	}
+	else if (message == "Invalid size") {
+		cout <<  "  _________________________________ \n"
+				 " |                                 |\n"
+				 " |    (!)  Invalid size entered    |\n"
+				 " |  _____________________________  |\n"
+				 " |                                 |\n"
+				 " |  Please enter a valid size      |\n"
+				 " |  limit for the records.         |\n"
+				 " |_________________________________|\n";
+	}
+	else if (message == "Unable to save") {
+		cout <<  "  _________________________________ \n"
+				 " |                                 |\n"
+				 " |   (!) Unable to save the file   |\n"
+				 " |  _____________________________  |\n"
+				 " |                                 |\n"
+				 " |  Either you entered an invalid  |\n"
+				 " |  file name, or there is a       |\n"
+				 " |  problem with your computer.    |\n"
+				 " |_________________________________|\n";
 	}
 	
 }
@@ -1189,10 +1263,10 @@ void getFilesMenuInput () {
 				isExit = true;
 				break;
 			case 1:
-				isLoadFile = true;
+				isRecentFiles = true;
 				break;
 			case 2:
-				isRecentFiles = true;
+				isLoadFile = true;
 				break;
 			case 3:
 				isCreateFile = true;
@@ -1210,7 +1284,7 @@ void filesMenuNavigation() {
 	
 	if (isExit) { // When user selects "Exit"
 		clear();
-		cout << "(X) Exiting...";
+		printBox("         (X)  Exiting...         ");
 	}
 	
 	else if (isLoadFile) { // When user selects "Load existing file"
@@ -1238,15 +1312,21 @@ void filesMenuNavigation() {
 		*counter = 1;
 		
 		if (inFile.is_open()) {
-			cout << "(*) Showing recent files.\n";
 			
-			cout << "\nFiles opened recently:\n\n";
+			printBox("      Showing recent files       ");
+			
+			cout << "  _______________ _____ _ _  __    _\n"
+			        " |\n";
 			while (getline(inFile, *tempString)) {
-				cout << *counter << " -> " << *tempString << endl;
+				cout << " |   [" << *counter << "] " << *tempString << endl;
+//				cout << " |---|\n";
 				*counter += 1;
 			}
-			cout << "\n0 -> Go back to main menu\n";
-			cout << "\nWhich file do you want to open?\nEnter a number: ";
+			cout << " |   [0] Go back to main menu\n";
+			cout << " |_______________ _____ _ _  __    _\n";
+			cout << "  _______________ _____ _ _  __    _\n"
+					" |                                  \n"
+					" '---> Please enter a number: ";
 			*tempInt = numberInput();
 			
 			
@@ -1266,7 +1346,7 @@ void filesMenuNavigation() {
 			if (fileName != "")
 				while (*tempInt != 1 && *tempInt != 2) {
 					clear();
-					cout << "(*) Showing recent files.\n";
+					printBox("      Showing recent files       ");
 					cout << "\nDo you want to load \"" + fileName + "\"?\n";
 					cout << "\n1 - Yes\n2 - No\n\nEnter a number: ";
 					*tempInt = numberInput();
@@ -1279,14 +1359,14 @@ void filesMenuNavigation() {
 			clear();
 			
 			if (fileName == "")
-				cout << "(X) No file was loaded\n";
+				printBox("     (!) No file was loaded      ");
 			else {
 				loadFromHistory = true;
 				silentLoad = true;
 			}
 		} else {
 			clear();
-			cout << "(X) File history not found";
+			printBox("   (!) File history not found    ");
 		}
 		
 		delete tempString;
@@ -1303,7 +1383,7 @@ void filesMenuNavigation() {
 		
 		clear();
 		title("Hospital System - New File");
-		cout << "(+) Creating new file.\n";
+		printBox("      Creating new records       ");
 		
 		NoP = 0;
 		
@@ -1316,19 +1396,30 @@ void filesMenuNavigation() {
 			
 			cout << "\nPlease enter the new file name: ";
 			
-			fileName = "Records/" + stringInput();
+			fileName = "Records/" + stringInput() + ".txt";
 			
-			if (fileName != "") {
-				createFolder("Records");
-				saveRecords(records);
+			createFolder("Records");
+			if (saveRecords(records) == -1) {
+				clear();
+				printError("Unable to save");
+			} else {
+				clear();
+				printBox (  "    Success! You may find it     |\n"
+							" |   in the recent records menu    ");
 			}
-			else
-				cout << "\nInvalid file name.\n";
 		} else {
-			cout << "\nInvalid number.\n";
+			clear();
+			printError("Invalid size");
 		}
 		
 	}
+}
+
+void printBox (string message) {
+	cout << "  _________________________________\n"
+			" |                                 |\n";
+	cout << " |"        << message <<          "|\n";
+	cout << " |_________________________________|\n";
 }
 
 void loadFile() {
@@ -1338,7 +1429,7 @@ void loadFile() {
 	}
 	
 	if (!loadFromHistory) // if not already loading file from history
-		fileName = "Records/" + stringInput(); // Takes input from user, stores in fileName global variable
+		fileName = stringInput(); // Takes input from user, stores in fileName global variable
 	else
 		finishedLoadingFromHistory = true; // Return to case 2 once case 1 ends
 	
@@ -1454,16 +1545,22 @@ void setSize (int value) {
 	CurrentSize = value;
 }
 
+// Create a folder next to the program (OS-specific)
 void createFolder(string folderName) {
 	
 	string *temp = new string; // Create temporary string
 	
 	*temp = folderName; // Add folder name from the argument to the temporary string
 	
+	// For Windows
 	#ifdef _WIN32
+		// Appends the cmd command to "*temp"
 		*temp = "if not exist \"" + *temp + "\" mkdir -p \"" + *temp + "\"";
 		system((*temp).c_str()); // Send "create folder" command to the terminal
+	
+	// For everything else (assuming Unix-like)
 	#else
+		// Appends the shell command to "*temp"
 		*temp = "mkdir -p \"" + *temp + "\"";
 		system((*temp).c_str()); // Send "create folder" command to the terminal
 	#endif
@@ -1485,7 +1582,7 @@ void clear() {
 
 }
 
-// Change terminal title
+// Change terminal title (Windows-only)
 void title(string str) {
 	
 	// For Windows
@@ -1500,4 +1597,16 @@ void title(string str) {
 		delete title; // Delete the temporary string
 	
 	#endif
+}
+
+// Change the terminal colors (Windows-only)
+void color(bool enable) {
+	
+	#ifdef _WIN32
+		if (enable)
+			system("color f0");
+		else
+			system("color 07");
+	#endif
+	
 }
