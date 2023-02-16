@@ -6,6 +6,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <cmath>
+#include <ctime>
 
 using namespace std;
 
@@ -29,6 +30,11 @@ bool isRecentFiles = false;
 bool isCreateFile = false;
 
 bool showNumbers = false; // Used to show columns numbers temporarily
+bool showAllRecords = false; // Used to show all records
+
+int currentYear = time(NULL) / 60 / 60 / 24 / 365 + 1970;
+int currentMonth = (time(NULL) - ((currentYear - 1970) * 31556952)) / 60 / 60 / 24 / 30;
+int currentDay = (time(NULL) - ((currentYear - 1970) * 31556952) - (currentMonth * 2628000)) / 60 / 60 / 24;
 
 string fileName = "";
 
@@ -53,7 +59,7 @@ struct Person {
 struct Patient {
 	Person patient;
 	string medicine;
-	double dose;
+	int dose;
 };
 
 //// Function Prototypes
@@ -119,6 +125,8 @@ void printError(string);
 void createFolder(string);
 
 int newPatient (Patient []);
+
+void updateFileHistory ();
 
 // Ahmad Al Ohaid:
 
@@ -267,13 +275,19 @@ int newPatient (Patient records[]) {
 	    Patient New[1];
 	    
 	    {
-	    	New[0].patient.id = "";
-		    New[0].patient.name.first = "";
-		    New[0].patient.name.last = "";
-		    New[0].patient.gender = ' ';
-		    New[0].patient.dob.mm = 0;
-		    New[0].patient.dob.dd = 0;
-		    New[0].patient.dob.yy = 0;
+	    	New[0].patient.id = "00";
+		    New[0].patient.name.first = "____";
+		    New[0].patient.name.last = "____";
+		    New[0].patient.gender = '?';
+		    if (currentMonth > 0 && currentMonth <= 12)
+				New[0].patient.dob.mm = currentMonth;
+			else
+				New[0].patient.dob.mm = 1;
+		    if (currentDay > 0 && currentDay <= 31)
+				New[0].patient.dob.dd = currentDay;
+			else
+				New[0].patient.dob.dd = 1;
+		    New[0].patient.dob.yy = currentYear;
 		    New[0].medicine = "";
 		    New[0].dose = 0;
 		}
@@ -281,125 +295,112 @@ int newPatient (Patient records[]) {
 	    string input = "";
 	    
 	    string message = "(+) Adding patient information to record #" + to_string(NoP+1) + ":\n";
-	    
-	    string totalInput = "";
+
 	    
 		do {
 			clear();
 			cout << message;
 			view(New,0,1,1);
-			cout << totalInput;
-			cout << "Patient\'s ID: ";
-			input = stringInput();
+			cout << "\n.-- Patient\'s ID:\n";
+			input = stringInput("\'-> ");
 		} while (convertToInt(input) == -1);
 		New[0].patient.id = input;
-		
-		totalInput += "Patient\'s ID: " + input + "\n";
 		
 		{
 			clear();
 			cout << message;
 			view(New,0,1,2);
-			cout << totalInput;
-			cout << "Patient\'s first name: ";
-			input = stringInput();
+			cout << "\n.-- Patient\'s first name:\n";
+			input = stringInput("\'-> ");
 			New[0].patient.name.first = input;
-			totalInput += "Patient\'s first name: " + input + "\n";
 		}
 		{
 			clear();
 			cout << message;
 			view(New,0,1, 3);
-			cout << totalInput;
-			cout << "Patient\'s last name: ";
-			input = stringInput();
+			cout << "\n.-- Patient\'s last name:\n";
+			input = stringInput("\'-> ");
 			New[0].patient.name.last = input;
-			totalInput += "Patient\'s last name: " + input + "\n";
 		}
-		{
+		
+		do {
 			clear();
 			cout << message;
 			view(New,0,1, 4);
-			cout << totalInput;
-			cout << "Patient\'s gender: ";
-			input = stringInput();
-			New[0].patient.gender = input[0];
-			totalInput += "Patient\'s gender: " + input + "\n";
-		}
+			cout << "\n.-- Patient\'s gender:\n";
+			input = stringInput("\'-> ");
+		} while (toupper(input[0]) != 'M' && toupper(input[0]) != 'F');
+		New[0].patient.gender = toupper(input[0]);
 		
 		do {
 			clear();
 			cout << message;
 			view(New,0,1, 5);
-			cout << totalInput;
-			cout << "Patient\'s birthdate:\n";
-			cout << "Month: ";
-			input = stringInput();
-		} while (convertToInt(input) == -1);
-		New[0].patient.dob.mm = convertToInt(input);
-		totalInput += "Patient\'s birthdate:\n";
-		totalInput += "Month: " + input + "\n";
-		
-		do {
-			clear();
-			cout << message;
-			view(New,0,1, 5);
-			cout << totalInput;
-			cout << "Day: ";
-			input = stringInput();
-		} while (convertToInt(input) == -1);
+			cout << "\n.-- Patient\'s birthdate:\n";
+			cout << "|-- Day:\n";
+			input = stringInput("\'-> ");
+		} while (convertToInt(input) <= 0 || convertToInt(input) > 31);
 		New[0].patient.dob.dd = convertToInt(input);
-		totalInput += "Day: " + input + "\n";
 		
 		do {
 			clear();
 			cout << message;
 			view(New,0,1, 5);
-			cout << totalInput;
-			cout << "Year: ";
-			input = stringInput();
-		} while (convertToInt(input) == -1);
+			cout << "\n.-- Patient\'s birthdate:\n";
+			cout << "|-- Month:\n";
+			input = stringInput("\'-> ");
+		} while (convertToInt(input) <= 0 || convertToInt(input) > 12);
+		New[0].patient.dob.mm = convertToInt(input);
+		
+		do {
+			clear();
+			cout << message;
+			view(New,0,1, 5);
+			cout << "\n.-- Patient\'s birthdate:\n";
+			cout << "|-- Year:\n";
+			input = stringInput("\'-> ");
+		} while (convertToInt(input) < 1900 || convertToInt(input) > currentYear);
 		New[0].patient.dob.yy = convertToInt(input);
-		totalInput += "Year: " + input + "\n";
 		
 		{
 			clear();
 			cout << message;
 			view(New,0,1, 6);
-			cout << totalInput;
-			cout << "Patient\'s medicine: ";
-			input = stringInput();
+			cout << "\n.-- Patient\'s medicine:\n";
+			input = stringInput("\'-> ");
 			New[0].medicine = input;
-			totalInput += "Patient\'s medicine: " + input + "\n";
 		}
 		
 		do {
 			clear();
 			cout << message;
 			view(New,0,1, 7);
-			cout << totalInput;
-			cout << "Dose: ";
-			input = stringInput();
+			cout << "\n.-- Medicine dose:\n";
+			input = stringInput("\'-> ");
 		} while (convertToInt(input) == -1);
 		New[0].dose = convertToInt(input);
-		totalInput += "Dose: " + input + "\n";
 		
 		while (true) {
 			clear();
 			cout << message;
 			view(New,0,1, 0);
-			cout << "\nIs this information correct? (Y/N)\n";
+			cout << "\n(!) Is this information correct? (Y/N)\n";
 			input = stringInput();
 			
 			if (tolower(input[0]) == 'n') {
 //				deleteRecord(arrayName,NoP);
 				while (true) {
-					
-					cout << "Would you like to edit this record? (Y/N)\n";
+					clear();
+					cout << message;
+					view(New,0,1, 5);
+					cout << "\n(!) Is there a value you\'d like to fix? (Y/N)\n";
 					input = stringInput();
 					
 					if (tolower(input[0] == 'n')) {
-						cout << "Would you like to add this record? (Y/N)\n";
+						clear();
+						cout << message;
+						view(New,0,1, 5);
+						cout << "\n(!) Would you like to add this record? (Y/N)\n";
 						input = stringInput();
 					
 						if (tolower(input[0] == 'n'))
@@ -417,16 +418,13 @@ int newPatient (Patient records[]) {
 						view(New, 0, 1, 0);
 						showNumbers = false;
 						
-						cout << "Which value would you like to edit? ";
+						cout << "\n(!) Which value would you like to edit? ";
 						
 						int column = numberInput();
 						
 						if (column > 0 && column <= 7) {
 							string valueinput = stringInput("Enter the new value: ");
 							updatePatient(New, New[0].patient.id, column, valueinput);
-						} else {
-							clear();
-							cout << "Invalid value.";
 						}
 					}
 					
@@ -502,7 +500,7 @@ void view(Patient records[], int first, int last, int highlight) {
 	int columns[] = {1, 2, 3, 4, 5, 6, 7}; 
 	
 	
-	string ID = "ID", name = "First Name", lastName = "Last Name", gender = "Gender", DoB = "Birthdate", medicine = "Medicine", dose = "Dose";
+	string ID = "ID", name = "First Name", lastName = "Last Name", gender = "Gender", DoB = "Birthdate", medicine = "Medicine", dose = "Dose (in micro)";
 	
 	if (showNumbers) {
 		ID = "1. " + ID;
@@ -524,7 +522,7 @@ void view(Patient records[], int first, int last, int highlight) {
 		maxName = maxCharacters (records[i].patient.name.first, maxName);
 		maxLastName = maxCharacters (records[i].patient.name.last, maxLastName);
 		maxGender = maxCharacters (to_string(records[i].patient.gender), maxGender);
-		maxDoB = maxCharacters (to_string(records[i].patient.dob.mm) + "/" + to_string(records[i].patient.dob.dd) + "/" + to_string(records[i].patient.dob.yy), maxDoB);
+		maxDoB = maxCharacters (to_string(records[i].patient.dob.yy) + "-MMM-" + to_string(records[i].patient.dob.dd), maxDoB);
 		maxMedicine = maxCharacters (records[i].medicine, maxMedicine);
 		maxDose = maxCharacters (to_string(records[i].dose), maxDose);
 	}
@@ -563,6 +561,7 @@ void view(Patient records[], int first, int last, int highlight) {
 	printColumns(columns, "| ", fillSpaces("", maxID), fillSpaces("", maxName), fillSpaces("", maxLastName), fillSpaces("", maxGender),
 				fillSpaces("", maxDoB), fillSpaces("", maxMedicine), fillSpaces("", maxDose), "|\n");
 	
+	string months[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
 	// Prints every row's data on separate lines, with the total width adjusting for the largest character count in each row
 	for (int i = first; i < last; i++) {
 		
@@ -571,7 +570,7 @@ void view(Patient records[], int first, int last, int highlight) {
 		string firstName = records[i].patient.name.first;
 		string lastName = records[i].patient.name.last;
 		string gender = string(1, records[i].patient.gender);
-		string birthdate = to_string(records[i].patient.dob.mm) + "/" + to_string(records[i].patient.dob.dd) + "/" + to_string(records[i].patient.dob.yy);
+		string birthdate = to_string(records[i].patient.dob.yy) + "-" + months[records[i].patient.dob.mm - 1] + "-" + to_string(records[i].patient.dob.dd);
 		string medicine = records[i].medicine;
 		string dose = to_string(records[i].dose);
 		
@@ -594,21 +593,43 @@ void menu(Patient records[]) {
 	
 	while (true) {
 		
-		title(fileName + " - Hospital System");
+		title(fileName + " - Hospital System - Displaying " + to_string(NoP) + " records");
 		
 		cout << message << endl;
 		message = "(?) Number of records: " + to_string(NoP) + "\n";
 		
-		cout << "Options:\n\n"
-				"1 -> Add a patient\'s record\n"
-				"2 -> Delete a patient\'s record\n"
-				"3 -> Update a patient\'s record\n"
-				"4 -> Display all records\n"
-				"5 -> Sort records\n"
-				"6 -> Find patient by ID\n"
-				"7 -> Find patient by name\n"
-				"\n0 -> Save and return to main menu\n"
-				"\nPlease enter a number: ";
+		
+		
+		if (NoP > 5 && showAllRecords == false) {
+			cout << "\n* Showing last 5 records:\n";
+			view(records, NoP-5, NoP, 0);
+		}
+		else {
+			cout << "\n* Showing all records:\n";
+			view(records, 0, NoP, 0);
+		}
+		
+		string allRecords = "";
+		if (showAllRecords)
+			allRecords = "Show Last 5 Records";
+		else
+			allRecords = "Show All Records";
+		
+		cout << "\n __\\ [1] Add Record / [2] Edit Record / [3] Find Record / [4] Sort Records\n"
+				"|  /    [5] Rearrange Columns / [6] " + allRecords + " / [0] Save and Exit\n"
+				"|\n"
+				"'-- What would you like to do? ";
+		
+//		cout << "Options:\n\n"
+//				"1 -> Add a patient\'s record\n"
+//				"2 -> Delete a patient\'s record\n"
+//				"3 -> Update a patient\'s record\n"
+//				"4 -> Display all records\n"
+//				"5 -> Sort records\n"
+//				"6 -> Find patient by ID\n"
+//				"7 -> Find patient by name\n"
+//				"\n0 -> Save and return to main menu\n"
+//				"\nPlease enter a number: ";
 		
 		switch (numberInput()) {
 			
@@ -645,77 +666,134 @@ void menu(Patient records[]) {
 				else {
 					clear();
 					cout << "(!) Record not added!\n";
+					break;
 				}
-				
+				clear();
 				break;
 			
 			case 2: {
-				
-				title(fileName + " - Hospital System - Deleting a record from " + to_string(NoP) + " records");
+				bool *loop = new bool;
+				*loop = true;
 				clear();
+				while (*loop) {
+					title(fileName + " - Hospital System - Editing " + to_string(NoP) + " records");
 				
-				cout << "(2) Deleting a patient\'s record.\n";
-				
-				cout << "\nEnter patient ID: ";
-				
-				int patientID = findPatient(records,stringInput());
-				
-				if (patientID >= 0)
-					deleteRecord(records, patientID);
-				else
-					message = "Patient not found\n";
-				
+					cout << "\n\n.--> [1] Update Record / [2] Delete Record / [0] Go Back\n"
+							"|\n"
+							"'-- What would you like to do? ";
+					
+					int input = numberInput();
+					
+					switch(input) {
+						case 1: {
+							title(fileName + " - Hospital System - Updating a record from " + to_string(NoP) + " records");
+							clear();
+							
+							string IDinput = stringInput("Enter patient\'s ID: ");
+							int index = findPatient(records, IDinput);
+							
+							if (index != -1) {
+								clear();
+								showNumbers = true;
+								view(records, index, index+1, 0);
+								showNumbers = false;
+								
+								cout << "Which value would you like to edit? ";
+								
+								int column = numberInput();
+								
+								if (column > 0 && column <= 7) {
+									string input = stringInput("Enter the new value: ");
+									updatePatient(records, IDinput, column, input);
+								} else {
+									clear();
+									cout << "Invalid value.";
+								}
+							}
+							else {
+								clear();
+								cout << "Couldn't find patient.";
+							}
+							
+							break;
+						}
+						case 2: {
+							title(fileName + " - Hospital System - Deleting a record from " + to_string(NoP) + " records");
+							clear();
+							
+							cout << "(2) Deleting a patient\'s record.\n";
+							
+							cout << "\nEnter patient ID: ";
+							
+							int patientID = findPatient(records,stringInput());
+							
+							if (patientID >= 0)
+								deleteRecord(records, patientID);
+							else
+								message = "Patient not found\n";
+							
+							clear();
+							break;
+						}
+						case 0: {
+							*loop = false;
+							break;
+						}
+						default: {
+							clear();
+							printError("Invalid option");
+							break;
+						}
+					}
+				}
+				delete loop;
 				clear();
-				
 				break;
 			}
 			
 			case 3: {
-				title(fileName + " - Hospital System - Updating a record from " + to_string(NoP) + " records");
+				title(fileName + " - Hospital System - Finding a record");
 				clear();
 				
-				string IDinput = stringInput("Enter patient\'s ID: ");
-				int index = findPatient(records, IDinput);
+				cout << "Find by (1) name or by (2) ID? ";
 				
-				if (index != -1) {
+				int input = numberInput();
+				
+				if (input == 1) {
+					title(fileName + " - Hospital System - Finding patient by ID");
 					clear();
-					showNumbers = true;
-					view(records, index, index+1, 0);
-					showNumbers = false;
 					
-					cout << "Which value would you like to edit? ";
+					cout << "(6) Finding patient by ID.\n";
 					
-					int column = numberInput();
+					cout << "\nEnter patient\'s ID:\n";
+					cout << findPatient(records,stringInput());
+				}
+				else if (input == 2) {
+					title(fileName + " - Hospital System - Finding patient by name");
+					clear();
 					
-					if (column > 0 && column <= 7) {
-						string input = stringInput("Enter the new value: ");
-						updatePatient(records, IDinput, column, input);
-					} else {
-						clear();
-						cout << "Invalid value.";
-					}
+					cout << "Find using first name or last name?\n1 for First, 2 for Last: ";
+					
+					*choice = numberInput();
+					
+					if (*choice == 1 || *choice == 2)
+						cout << findPatient(records, stringInput("Enter name to find: "), *choice);
+					else
+						message = "Please enter a valid number.\n";
+					
+					clear();
 				}
 				else {
 					clear();
-					cout << "Couldn't find patient.";
+					printError("Invalid option");
+					break;
 				}
 				
+				clear();
 				break;
 			}
 			
 			case 4:
-				
-				title(fileName + " - Hospital System - Displaying " + to_string(NoP) + " records");
-				
-				view(records, 0, NoP, 0);				
-				system("pause"); // REMOVE
-				
-				clear();
-				
-				break;
-			
-			case 5:
-				
 				title(fileName + " - Hospital System - Sorting " + to_string(NoP) + " records");
 				clear();
 				
@@ -723,37 +801,17 @@ void menu(Patient records[]) {
 				
 				sortPatients(records, numberInput());
 				
-				break;
-			
-			case 6:
-				
-				title(fileName + " - Hospital System - Finding patient by ID");
 				clear();
-				
-				cout << "(6) Finding patient by ID.\n";
-				
-				cout << "\nEnter patient\'s ID:\n";
-				cout << findPatient(records,stringInput());
-				
 				break;
+				
 			
-			case 7:
-				
-				title(fileName + " - Hospital System - Finding patient by name");
-				clear();
-				
-				cout << "Find using first name or last name?\n1 for First, 2 for Last: ";
-				
-				*choice = numberInput();
-				
-				if (*choice == 1 || *choice == 2)
-					cout << findPatient(records, stringInput("Enter name to find: "), *choice);
+			case 6: {
+				if (showAllRecords == true)
+					showAllRecords = false;
 				else
-					message = "Please enter a valid number.\n";
-				
-				clear();
-				
+					showAllRecords = true;
 				break;
+			}
 			
 			default:
 				
@@ -777,7 +835,7 @@ void loadRecords(Patient f[], int &NoP) {
 	
 	inFile.open(fileName);
 	
-	if (inFile.is_open())
+	if (inFile.is_open()) {
 		if (!inFile.eof()) {
 			while (getline(inFile, data, ',')) {
 
@@ -817,6 +875,8 @@ void loadRecords(Patient f[], int &NoP) {
 				data = "";
 			}
 		}
+		updateFileHistory();
+	}
 	else {
 		cout << "\nError! Couldn't load file.\n";
 	}
@@ -876,6 +936,47 @@ int saveRecords(Patient f[]) {
 	outFile.close();
 	
 	return 0;
+}
+
+void updateFileHistory () {
+	ifstream fileHistory;
+	
+	fileHistory.open("FileHistory");
+	
+	string fileNames[5] = {"", "", "", "", ""};
+	
+	if (fileHistory.is_open())
+		for (int i = 0; i < 5; i++) {
+			if (fileHistory.eof())
+				break;
+			getline(fileHistory, fileNames[i]);
+		}
+	else {
+		ofstream outFile("FileHistory");
+		outFile.close();
+		fileHistory.close();
+		return;
+	}
+	
+	fileHistory.close();
+	
+	if (fileNames[0] != fileName) {
+		ofstream outFile("FileHistory");
+		
+		if (outFile.is_open()) {
+			for (int i = 4; i > 0; i--) {
+				fileNames[i] = fileNames[i-1];
+			}
+			outFile << fileName << endl;
+			for (int i = 1; i < 5; i++) {
+				if (fileNames[i] != "")
+					outFile << fileNames[i] << endl;
+			}
+		}
+		
+		outFile.close();
+	}
+	
 }
 
 // Function that returns integer input from user
@@ -1059,7 +1160,7 @@ void printError (string message) {
 		cout << "(!) Invalid option.\n"
 				" |\n"
 				" \'-> Please enter a number corresponding to one of\n"
-				"     the available options, 1, or 2, or 3, or 0.\n";
+				"     the available options.\n";
 	}
 	else if (message == "Unable to load") {
 		cout << "(!) Couldn't load the file.\n"
