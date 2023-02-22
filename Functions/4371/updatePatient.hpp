@@ -36,9 +36,9 @@ int updatePatient(Patient a[], string id, int choice, string newData, int NoP) {
 			break;
 		case 9:
 			a[index].dose = convertToInt(newData);
+			break;
     	default:
 	      	return -1;
-	      	break;
   }
   return 0;
 }
