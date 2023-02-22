@@ -40,17 +40,6 @@ void menu(Patient records[]) {
 				"|\n"
 				"'-- What would you like to do? ";
 		
-//		cout << "Options:\n\n"
-//				"1 -> Add a patient\'s record\n"
-//				"2 -> Delete a patient\'s record\n"
-//				"3 -> Update a patient\'s record\n"
-//				"4 -> Display all records\n"
-//				"5 -> Sort records\n"
-//				"6 -> Find patient by ID\n"
-//				"7 -> Find patient by name\n"
-//				"\n0 -> Save and return to main menu\n"
-//				"\nPlease enter a number: ";
-		
 		switch (numberInput()) {
 			
 			case 0:
@@ -152,10 +141,10 @@ void menu(Patient records[]) {
 							
 							cout << "\nEnter patient ID: ";
 							
-							int patientID = findPatient(records,stringInput(), NoP);
+							int patientIndex = findPatient(records,stringInput(), NoP);
 							
-							if (patientID >= 0)
-								deleteRecord(records, patientID);
+							if (patientIndex >= 0)
+								deleteRecord(records, patientIndex);
 							else
 								message = "Patient not found\n";
 							
