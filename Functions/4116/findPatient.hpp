@@ -5,32 +5,41 @@
 
 // Basil AlZahrani - 2220004116
 
-int findPatient(Patient a[], string needed_id){ // Basil Al Zahrani 2220004116
+int findPatient(Patient a[], string needed_id, bool binarySearch){ // Basil Al Zahrani 2220004116
     
-	int middle = 0;
-    int first = 0;
-    int last = NoP-1;
-    
-	while(last - first > 1) {
-        
-		middle = (first + last) / 2;
-        
-        if (convertToInt(a[middle].patient.id) == convertToInt(needed_id))
-            return middle;
-        
-		else if(convertToInt(a[middle].patient.id) < convertToInt(needed_id))
-            first = middle + 1;
-        
-        else 
-            last = middle - 1;
-    }
-    
-    if (convertToInt(a[first].patient.id) == convertToInt(needed_id))
-            return first;
-    
-    if (convertToInt(a[last].patient.id) == convertToInt(needed_id))
-            return last;
-    
+    if (binarySearch) {
+    	int middle = 0;
+	    int first = 0;
+	    int last = NoP-1;
+	    
+		while(last - first > 1) {
+	        
+			middle = (first + last) / 2;
+	        
+	        if (a[middle].patient.id == needed_id)
+	            return middle;
+	        
+			else if(a[middle].patient.id < needed_id)
+	            first = middle + 1;
+	        
+	        else 
+	            last = middle - 1;
+	    }
+	    
+	    if (a[first].patient.id == needed_id)
+	            return first;
+	    
+	    if (a[last].patient.id == needed_id)
+	            return last;
+	}
+	else if (!binarySearch) {
+		for (int i = 0; i < NoP; i++) {
+			if (a[i].patient.id == needed_id)
+            	return i;
+        }
+	}
+	
+	// When not found
 	return -1;
 }
 
