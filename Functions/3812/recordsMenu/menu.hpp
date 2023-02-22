@@ -287,6 +287,24 @@ void menu(Patient records[]) {
 				clear();
 				break;
 				
+			case 5: {
+				title(fileName + " - Hospital System - Rearranging columns");
+				clear();
+				
+				cout << "Enter 1-7 to arrange the columns:\n";
+				
+				showNumbers = true;
+				view(records, 0, 0, 0);
+				
+				
+				for (int i = 0; i < 7; i++) {
+					cout << "Column #" << i+1 << ":\n";
+					columns[i] = numberInput();
+				}
+				
+				clear();
+				break;
+			}
 			
 			case 6: {
 				clear();
