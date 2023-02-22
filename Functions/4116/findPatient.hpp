@@ -18,7 +18,7 @@ int findPatient(Patient a[], string needed_id, int NoP){ // Basil Al Zahrani 222
         if (convertToInt(a[middle].patient.id) == convertToInt(needed_id))
             return middle;
         
-		else if(convertToInt(a[middle].patient.id) > convertToInt(needed_id))
+		else if(convertToInt(a[middle].patient.id) < convertToInt(needed_id))
             first = middle + 1;
         
         else 
