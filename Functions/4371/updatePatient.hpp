@@ -7,7 +7,7 @@
 
 int updatePatient(Patient a[], string id, int choice, string newData, int NoP) {
   
-  	int index = findPatient(a, id, true);
+  	int index = findPatient(a, id);
   
   	switch (choice) {
     	case 1:

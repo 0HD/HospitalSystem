@@ -152,8 +152,9 @@ void menu(Patient records[]) {
 											"[2] Month"
 											"[3] Day"
 											"\n\nEnter a number: ";
-									column = numberInput();
-									if (column >= 1 && column <= 3) {
+									column *= 10;
+									column += numberInput();
+									if (column >= 51 && column <= 53) {
 										string input = stringInput("Enter the new value: ");
 										updatePatient(records, IDinput, column, input, NoP);
 									}
