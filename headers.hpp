@@ -27,6 +27,8 @@ bool finishedLoadingFromHistory = false; // Used to show feedback after loading 
 
 bool silentLoad = false; // Used to stop printing messages temporarily
 
+int columns[] = {1, 2, 3, 4, 5, 6, 7}; // Order of columns
+
 bool isExit = false;
 bool isLoadFile = false;
 bool isRecentFiles = false;

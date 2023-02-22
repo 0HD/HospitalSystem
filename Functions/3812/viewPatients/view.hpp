@@ -6,9 +6,6 @@
 
 void view(Patient records[], int first, int last, int highlight) {
 	
-	int columns[] = {1, 2, 3, 4, 5, 6, 7}; 
-	
-	
 	string ID = "ID", name = "First Name", lastName = "Last Name", gender = "Gender", DoB = "Birthdate", medicine = "Medicine", dose = "Dose (in micro)";
 	
 	if (showNumbers) {
