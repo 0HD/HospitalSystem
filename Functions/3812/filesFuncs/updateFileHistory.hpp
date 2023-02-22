@@ -10,6 +10,13 @@ void updateFileHistory () {
 	
 	string fileNames[9] = {"", "", "", "", "", "", "", "", ""};
 	
+	if (fileHistory.is_open() == false) {
+		fileHistory.close();
+		ofstream outFile("FileHistory");
+		outFile.close();
+		fileHistory.open("FileHistory");
+	}
+	
 	if (fileHistory.is_open())
 		for (int i = 0; i < 9; i++) {
 			if (fileHistory.eof())
@@ -17,8 +24,6 @@ void updateFileHistory () {
 			getline(fileHistory, fileNames[i]);
 		}
 	else {
-		ofstream outFile("FileHistory");
-		outFile.close();
 		fileHistory.close();
 		return;
 	}
