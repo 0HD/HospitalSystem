@@ -42,26 +42,45 @@ void menu(Patient records[]) {
 		
 		switch (numberInput()) {
 			
-			case 0:
-				
+			case 0: {
 				clear();
 				
-				cout << "(+) Saving as a new file \n";
-				cout << "\nEnter file name:\n> ";
-			
-				fileName = stringInput();
+				cout << "[1] Save file\n"
+						"[2] Save as new file\n"
+						"[3] Exit without saving\n"
+						"[0] Cancel\n"
+						"\n\nWhat would you like to do?\n> ";
 				
-				if (saveRecords(records) != 0)
-					message = "Couldn't save file! Enter \"221\" to exit without saving.";
-				else
+				int saveinput = numberInput();
+				
+				if (saveinput == 1) {
+					clear();
+					if (saveRecords(records) != 0)
+						printError("Unable to save");
+				}
+				else if (saveinput == 2) {
+					clear();
+					cout << "(+) Saving as a new file \n";
+					cout << "\nEnter file name:\n> ";
+				
+					string oldFileName = fileName;
+					fileName = stringInput();
+					
+					clear();
+					
+					if (saveRecords(records) != 0) {
+						printError("Unable to save");
+						fileName = oldFileName;
+					}
+				}
+				else if (saveinput == 3) {
 					return;
+				}
+				else
+					clear();
 				
 				break;
-			
-			case 221:
-				clear();
-				
-				return;
+			}
 			
 			case 1: {
 				title(fileName + " - Hospital System - Adding to record #" + to_string(NoP+1));
@@ -141,11 +160,13 @@ void menu(Patient records[]) {
 							title(fileName + " - Hospital System - Deleting a record from " + to_string(NoP) + " records");
 							clear();
 							
+							view(records, 0, NoP, 0);
+							
 							cout << "(2) Deleting a patient\'s record.\n";
 							
 							cout << "\nEnter patient ID: ";
 							
-							int patientIndex = findPatient(records,stringInput(), NoP);
+							int patientIndex = findPatient(records,stringInput());
 							
 							if (patientIndex >= 0)
 								deleteRecord(records, patientIndex);
