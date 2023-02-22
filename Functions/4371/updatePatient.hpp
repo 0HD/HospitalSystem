@@ -7,7 +7,7 @@
 
 int updatePatient(Patient a[], string id, int choice, string newData, int NoP) {
   
-  	int index = findPatient(a, id, NoP);
+  	int index = findPatient(a, id, true);
   
   	switch (choice) {
     	case 1:
@@ -22,19 +22,19 @@ int updatePatient(Patient a[], string id, int choice, string newData, int NoP) {
 		case 4:
 			a[index].patient.gender = newData[0];
 			break;
-		case 5:
-			a[index].patient.dob.mm = convertToInt(newData);
-			break;
-		case 6:
-			a[index].patient.dob.dd = convertToInt(newData);
-			break;
-		case 7:
+		case 51:
 			a[index].patient.dob.yy = convertToInt(newData);
 			break;
-		case 8:
+		case 52:
+			a[index].patient.dob.mm = convertToInt(newData);
+			break;
+		case 53:
+			a[index].patient.dob.dd = convertToInt(newData);
+			break;
+		case 6:
 			a[index].medicine = newData;
 			break;
-		case 9:
+		case 7:
 			a[index].dose = convertToInt(newData);
 			break;
     	default:
