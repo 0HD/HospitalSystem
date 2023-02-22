@@ -1,7 +1,7 @@
 #ifndef FILESMENU_HPP
 #define FILESMENU_HPP
 
-#include "PROTOTYPES.hpp"
+#include "../PROTOTYPES.hpp"
 
 #include "filesMenu/printFilesMenu.hpp"
 #include "filesMenu/getFilesMenuInput.hpp"

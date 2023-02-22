@@ -1,7 +1,7 @@
 #ifndef VIEWPATIENTS_HPP
 #define VIEWPATIENTS_HPP
 
-#include "PROTOTYPES.hpp"
+#include "../PROTOTYPES.hpp"
 
 // Anas Ali Mastour AlGhamdi - 2220003812
 

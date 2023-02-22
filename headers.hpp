@@ -45,9 +45,10 @@ int currentDay = (time(NULL) - ((currentYear - 1970) * 31556952) - (currentMonth
 
 string fileName = "";
 
-// Functions
+//// Functions
 
-#include "Functions/3812/PROTOTYPES.hpp"
+// Function Prototypes
+#include "Functions/PROTOTYPES.hpp"
 
 // Basil AlZahrani - 2220004116
 #include "Functions/4116/findPatient.hpp"

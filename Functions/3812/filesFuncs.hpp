@@ -1,7 +1,7 @@
 #ifndef FILESFUNCS_HPP
 #define FILESFUNCS_HPP
 
-#include "PROTOTYPES.hpp"
+#include "../PROTOTYPES.hpp"
 
 #include "filesFuncs/getArrayInfoFromFile.hpp"
 #include "filesFuncs/isFileCompatible.hpp"

@@ -1,7 +1,7 @@
 #ifndef CONVERTTOINT_H
 #define CONVERTTOINT_H
 
-#include "PROTOTYPES.hpp"
+#include "../PROTOTYPES.hpp"
 
 int convertToInt (string input) {
 	bool isDigit = true; // creates a boolean
