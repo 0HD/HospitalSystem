@@ -34,6 +34,8 @@ bool isLoadFile = false;
 bool isRecentFiles = false;
 bool isCreateFile = false;
 
+int sorted = 0; // 0 for not sorted, 1 for ascending, 2 for descending
+
 bool showNumbers = false; // Used to show columns numbers temporarily
 bool showAllRecords = false; // Used to show all records
 
