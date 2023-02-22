@@ -93,7 +93,9 @@ void menu(Patient records[]) {
 				clear();
 				while (*loop) {
 					title(fileName + " - Hospital System - Editing " + to_string(NoP) + " records");
-				
+					
+					view(records, 0, NoP, 0);
+					
 					cout << "\n\n.--> [1] Update Record / [2] Delete Record / [0] Go Back\n"
 							"|\n"
 							"'-- What would you like to do? ";
@@ -105,7 +107,9 @@ void menu(Patient records[]) {
 							title(fileName + " - Hospital System - Updating a record from " + to_string(NoP) + " records");
 							clear();
 							
-							string IDinput = stringInput("Enter patient\'s ID: ");
+							view(records, 0, NoP, 0);
+							
+							string IDinput = stringInput("\nEnter patient\'s ID: ");
 							int index = findPatient(records, IDinput, NoP);
 							
 							if (index != -1) {
@@ -123,7 +127,7 @@ void menu(Patient records[]) {
 									updatePatient(records, IDinput, column, input, NoP);
 								} else {
 									clear();
-									cout << "Invalid value.";
+									printError("Invalid option");
 								}
 							}
 							else {
@@ -171,7 +175,7 @@ void menu(Patient records[]) {
 				title(fileName + " - Hospital System - Finding a record");
 				clear();
 				
-				cout << "Find by (1) name or by (2) ID? ";
+				cout << "Find by (1) ID or by (2) name? ";
 				
 				int input = numberInput();
 				
