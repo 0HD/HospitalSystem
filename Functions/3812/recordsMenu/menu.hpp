@@ -175,7 +175,7 @@ void menu(Patient records[]) {
 				title(fileName + " - Hospital System - Finding a record");
 				clear();
 				
-				cout << "Find by (1) ID or by (2) name? ";
+				cout << "\n\nFind by (1) ID or by (2) name? ";
 				
 				int input = numberInput();
 				
@@ -185,8 +185,22 @@ void menu(Patient records[]) {
 					
 					cout << "(6) Finding patient by ID.\n";
 					
-					cout << "\nEnter patient\'s ID:\n";
-					cout << findPatient(records,stringInput(), NoP);
+					cout << "\n\nEnter patient\'s ID:\n";
+					
+					int* patientIndex = new int;
+					*patientIndex = findPatient(records, stringInput());
+					
+					if (*patientIndex != -1) {
+						clear();
+						view(records, *patientIndex, *patientIndex+1, 0);
+						delete patientIndex;
+						cout << "\nEnter anything to continue." << stringInput();
+						clear();
+					}
+					else {
+						clear();
+						cout << "Unable to find patient.\n";
+					}
 				}
 				else if (input == 2) {
 					title(fileName + " - Hospital System - Finding patient by name");
@@ -196,12 +210,27 @@ void menu(Patient records[]) {
 					
 					*choice = numberInput();
 					
-					if (*choice == 1 || *choice == 2)
-						cout << findPatient(records, stringInput("Enter name to find: "), *choice);
-					else
+					if (*choice == 1 || *choice == 2) {
+						
+						int* patientIndex = new int;
+						*patientIndex = findPatient(records, stringInput("\n\nEnter name to find: "), *choice);
+						
+						if (*patientIndex != -1) {
+							clear();
+							view(records, *patientIndex, *patientIndex+1, 0);
+							delete patientIndex;
+							cout << "\nEnter anything to continue." << stringInput();
+							clear();
+						}
+						else {
+							clear();
+							cout << "Unable to find patient.\n";
+						}
+					}
+					else {
+						clear();
 						message = "Please enter a valid number.\n";
-					
-					clear();
+					}
 				}
 				else {
 					clear();
@@ -209,7 +238,6 @@ void menu(Patient records[]) {
 					break;
 				}
 				
-				clear();
 				break;
 			}
 			
@@ -226,6 +254,7 @@ void menu(Patient records[]) {
 				
 			
 			case 6: {
+				clear();
 				if (showAllRecords == true)
 					showAllRecords = false;
 				else

@@ -5,7 +5,7 @@
 
 // Basil AlZahrani - 2220004116
 
-int findPatient(Patient a[], string needed_id, int NoP){ // Basil Al Zahrani 2220004116
+int findPatient(Patient a[], string needed_id){ // Basil Al Zahrani 2220004116
     
 	int middle = 0;
     int first = 0;
@@ -34,7 +34,7 @@ int findPatient(Patient a[], string needed_id, int NoP){ // Basil Al Zahrani 222
 	return -1;
 }
 
-int findPatient(Patient a[], string name, int choice, int NoP){ // Basil Al Zahrani 2220004116
+int findPatient(Patient a[], string name, int choice){ // Basil Al Zahrani 2220004116
     
 	if (choice == 1) {
 		// Find using first name
