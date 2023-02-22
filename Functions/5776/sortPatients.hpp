@@ -22,6 +22,7 @@ void sortPatients(Patient records[], int choice, int NoP) {
 				}
 			}
 		}
+		sorted = choice;
 	} else if (choice == 2) {
 		for ( i=0 ; i<NoP-1 ; i++ ) {
 			for ( j=0; j<NoP-1; j++ ) {
@@ -32,6 +33,7 @@ void sortPatients(Patient records[], int choice, int NoP) {
 				}
 			}
 		}
+		sorted = choice;
 	}	
 }
 

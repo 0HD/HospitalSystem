@@ -93,6 +93,7 @@ void menu(Patient records[]) {
 				if (*feedback == 0) {
 					clear();
 					cout << "(+) Successfully added record #" + to_string(NoP) + "\n";
+					sorted = 0;
 					break;
 				}
 				else if (*feedback == -1) {
@@ -129,7 +130,8 @@ void menu(Patient records[]) {
 							view(records, 0, NoP, 0);
 							
 							string IDinput = stringInput("\nEnter patient\'s ID: ");
-							int index = findPatient(records, IDinput, NoP);
+							int index;
+							index = findPatient(records, IDinput);
 							
 							if (index != -1) {
 								clear();
@@ -141,9 +143,20 @@ void menu(Patient records[]) {
 								
 								int column = numberInput();
 								
-								if (column > 0 && column <= 7) {
+								if (column >= 1 && column <= 7 && column != 5) {
 									string input = stringInput("Enter the new value: ");
 									updatePatient(records, IDinput, column, input, NoP);
+								} else if (column == 5) {
+									cout << "Which value would you like to edit?\n"
+											"[1] Year"
+											"[2] Month"
+											"[3] Day"
+											"\n\nEnter a number: ";
+									column = numberInput();
+									if (column >= 1 && column <= 3) {
+										string input = stringInput("Enter the new value: ");
+										updatePatient(records, IDinput, column, input, NoP);
+									}
 								} else {
 									clear();
 									printError("Invalid option");
@@ -151,8 +164,9 @@ void menu(Patient records[]) {
 							}
 							else {
 								clear();
-								cout << "Couldn't find patient.";
+								cout << "(!) Couldn't find patient!\n";
 							}
+							
 							
 							break;
 						}
