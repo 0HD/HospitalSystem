@@ -35,4 +35,7 @@
 *.out
 *.app
 
+# Records
+Records/
+
 # End of https://www.toptal.com/developers/gitignore/api/c++
